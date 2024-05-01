@@ -15,7 +15,18 @@ using std::string;
   has 100, the distance is 10.
 */
 unsigned int Guesser::distance(string guess){
-  return 0;
+	unsigned int distance = 0;
+
+	for(unsigned int i = 0; i < std::max(guess.size(), m_secret.size()); i++) {
+		if(i >= guess.size() || i >= m_secret.size()) {
+			distance++;
+		}
+		else if(guess[i] != m_secret[i]) {
+			distance++;
+		}
+	}
+
+	return std::min(distance, (unsigned int)m_secret.size());
 }
 
 /*
@@ -24,8 +35,8 @@ unsigned int Guesser::distance(string guess){
   of any Guesser object and must have a length of 32 characters or less,
   otherwise, it will be truncated at that length.
 */
-Guesser::Guesser(string secret){
-
+Guesser::Guesser(string secret) : m_secret{ secret } {
+	if(m_secret.size() > 32) m_secret.resize(32);
 }
 
 /*
@@ -39,8 +50,20 @@ Guesser::Guesser(string secret){
   determining how many guesses are remaining and the distance between a guess
   and the secret.
 */
-bool Guesser::match(string guess){
-  return true;
+bool Guesser::match(string guess) {
+	if(guess == m_secret && m_remaining > 0 && !m_locked) {
+		m_remaining = 3;
+		return true;
+	}
+	else if(distance(guess) > 2) {
+		m_locked = true;
+	}
+	
+	if(m_remaining > 0) {
+		m_remaining--;
+	}
+
+	return false;
 }
 
 /*
@@ -50,7 +73,7 @@ bool Guesser::match(string guess){
   an unlocked secret is guessed with a true match, the guesses remaining
   reset to three (3).
 */
-unsigned int Guesser::remaining(){
-  return 0;
+unsigned int Guesser::remaining() {
+  return m_remaining;
 }
 
